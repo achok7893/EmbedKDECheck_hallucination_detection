@@ -8,6 +8,35 @@ from sklearn.neighbors import KernelDensity
 from sklearn.decomposition import PCA
 from sklearn.model_selection import GridSearchCV
 import math
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import re 
+import nltk
+
+nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('punkt_tab')
+
+def clean_text(text):
+    # Remove HTML symbols
+    text = re.sub(r'<.*?>', '', text)
+    
+    # Tokenize the text
+    words = word_tokenize(text)
+    
+    # Remove punctuations and non-alphabetic characters
+    words = [word.lower() for word in words if word.isalpha()]
+    
+    # Remove French stopwords
+    french_stopwords = set(stopwords.words('english'))
+    words = [word for word in words if word not in french_stopwords]
+    
+    # Keep only words with more than 5 characters
+    words = [word for word in words if len(word) > 5]
+    
+    return ' '.join(words)
+
+
 
 def sigmoid(x):
     return 1 / (1 + math.exp(-x))
@@ -117,6 +146,9 @@ def get_scores_from_input_output_embeddings(embed_i, embed_o, bandwidth=None, n_
     return res_scores
 
 def get_scores_from_input_output_texts(text_i, text_o, embed_model, bandwidth=None, n_components_pca=5):
+
+    text_i = clean_text(text_i)
+    text_o = clean_text(text_o)
     
     embed_i = embed_model.get_tokens_and_embeddings(text_i)[1][0,:,:]
     embed_o = embed_model.get_tokens_and_embeddings(text_o)[1][0,:,:]
