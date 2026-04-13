@@ -136,9 +136,6 @@ def get_scores_from_input_output_embeddings(embed_i, embed_o, bandwidth=None, n_
     max_omission_score = np.max(omission_scores)
 
     res_scores = {
-        "hallucination_scores" : hallucination_scores,
-        "id_max_hallucination_score" : id_max_hallucination_score,
-        "max_hallucination_score" : max_hallucination_score,
         "omission_scores" : omission_scores,
         "id_max_omission_score" : id_max_omission_score,
         "max_omission_score" : max_omission_score}
@@ -151,9 +148,12 @@ def get_scores_from_input_output_texts(text_i, text_o, embed_model, bandwidth=No
     text_o = clean_text(text_o)
     
     embed_i = embed_model.get_tokens_and_embeddings(text_i)[1][0,:,:]
+    tokens_i = embed_model.get_tokens_and_embeddings(text_i)[0]
     embed_o = embed_model.get_tokens_and_embeddings(text_o)[1][0,:,:]
+    tokens_o = embed_model.get_tokens_and_embeddings(text_i)[0]
 
     res_scores = get_scores_from_input_output_embeddings(embed_i, embed_o, 
                                             bandwidth=bandwidth, n_components_pca=n_components_pca)
-
+    res_scores["tokens_i"] = tokens_i
+    res_scores["tokens_o"] = tokens_o
     return res_scores
